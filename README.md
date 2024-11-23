@@ -27,45 +27,33 @@ pip install langchain openai
 
 ## Program:
 ```python
+import os
 import openai
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
-from langchain.output_parsers import JsonOutputParser
+from langchain.chat_models import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain.schema.runnable import RunnablePassthrough  # Import this
 
-# Step 1: Set OpenAI API Key
-openai.api_key = 'your-openai-api-key'  # Replace with your OpenAI API key
+os.environ['OPENAI_API_KEY'] = "your-api-key"
 
-# Step 2: Define the Prompt Template with Two Parameters
-prompt_template = """
-You are an expert in calculating the volume of 3D shapes. Given the radius {radius} and height {height} of a cylinder, calculate its volume.
-Provide the result as a formatted string: "The volume of the cylinder is {volume} cubic units."
-"""
+prompt = ChatPromptTemplate.from_template(
+    "Tell me a short joke about {topic}"
+)
+output_parser = StrOutputParser()
+model = ChatOpenAI(model="gpt-4")
+chain = (
+    {"topic": RunnablePassthrough()} 
+    | prompt
+    | model
+    | output_parser
+)
 
-# Step 3: Instantiate the LangChain Prompt Template
-prompt = PromptTemplate(template=prompt_template, input_variables=["radius", "height"])
-
-# Step 4: Define the Model (OpenAI GPT)
-def generate_volume_output(radius: float, height: float) -> str:
-    # Create a chain using the prompt and LLM
-    chain = LLMChain(llm=openai.Completion, prompt=prompt)
-
-    # Step 5: Run the model and capture the output
-    volume = chain.run({"radius": radius, "height": height})
-    
-    return volume
-
-# Step 6: Output Parsing - Just parsing the response as a string for now
-def parse_output(output: str) -> str:
-    return output.strip()
-
-# Example Usage
-radius = 5
-height = 10
-raw_output = generate_volume_output(radius, height)
-parsed_output = parse_output(raw_output)
-
-# Display Result
-print(f"Raw Output: {raw_output}")
-print(f"Parsed Output: {parsed_output}")
+result = chain.invoke("ice cream")
+print(result)
 
 ```
+## OUTPUT:
+![image](https://github.com/user-attachments/assets/b592897c-a26f-4bf8-b8c4-86c341c63505)
+
+## RESULT:
+Successfully, implemented a LangChain Expression Language (LCEL) expression that uses at least two prompt parameters and three key components (prompt, model, and output parser), and to evaluate its functionality with relevant examples of its application in real-world scenarios.
